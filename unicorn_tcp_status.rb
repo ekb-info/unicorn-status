@@ -20,9 +20,9 @@ end
 socket = ARGV[0]
 threshold = (ARGV[1]).to_i
 
-# Check threshold - is it less than 3? If so, set to 3 seconds. Safety first!
-if threshold.to_i < 3
-  threshold = 3
+# Check threshold - is it less than 1? If so, set to 1 seconds. Safety first!
+if threshold.to_i < 1
+  threshold = 1
 end
 
 # Poll the given socket every THRESHOLD seconds as specified above.
@@ -30,10 +30,7 @@ puts "Running infinite loop. Use CTRL+C to exit."
 puts "------------------------------------------"
 loop do
   Raindrops::Linux.tcp_listener_stats(socket).each do |addr, stats|
-    header = "Active Requests         Queued Requests"
-    puts header
-    puts stats.active.to_s + stats.queued.to_s.rjust(header.length - stats.active.to_s.length)
-    puts "" # Break line between polling intervals, makes it easier to read
+    puts "Run procs: " + `vmstat |grep -o '^ \\?[0-9]\\+'`.delete!("\n").to_i.to_s + "	Active reqs: " + stats.active.to_s + "	Queued reqs: " + stats.queued.to_s 
   end
   sleep threshold
 end
